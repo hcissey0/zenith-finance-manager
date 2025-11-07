@@ -1,0 +1,5 @@
+{
+  "name": "Zenith Finance Manager",
+  "description": "An advanced, feature-rich personal and business finance manager. Track multiple portfolios, visualize your spending with detailed analytics, and get AI-powered insights to optimize your financial health. PWA support for offline access.",
+  "requestFramePermissions": []
+}

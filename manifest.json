@@ -1,0 +1,24 @@
+
+{
+  "short_name": "Zenith",
+  "name": "Zenith Finance Manager",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/fluency/192/cardano.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://img.icons8.com/fluency/512/cardano.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#111827",
+  "background_color": "#1f2937",
+  "description": "An intelligent finance tracker with AI insights."
+}
