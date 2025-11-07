@@ -49,12 +49,6 @@ const buttons: {
     icon: "gift",
     color: "bg-red-500 hover:bg-red-600",
   },
-  {
-    type: "other",
-    label: "Other",
-    icon: "plus",
-    color: "bg-gray-600 hover:bg-gray-700",
-  },
 ];
 
 const QuickLogButtons: React.FC<QuickLogButtonsProps> = ({

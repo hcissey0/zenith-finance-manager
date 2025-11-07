@@ -22,7 +22,7 @@ const OverviewChart: React.FC<OverviewChartProps> = ({ transactions }) => {
         dataByDate[date].expense += tx.amount;
       }
     });
-    
+
     return Object.entries(dataByDate)
       .map(([date, values]) => ({ date, ...values }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -33,14 +33,14 @@ const OverviewChart: React.FC<OverviewChartProps> = ({ transactions }) => {
     <div style={{ width: '100%', height: 300 }}>
       <ResponsiveContainer>
         <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
+          <CartesianGrid  vertical={false} strokeDasharray="3 3" stroke="#4b5563" />
           <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} tickFormatter={(str) => {
               const date = new Date(str);
               return `${date.getMonth() + 1}/${date.getDate()}`;
           }}/>
           <YAxis stroke="#9ca3af" fontSize={12} />
           <Tooltip
-            contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151' }}
+            contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
             labelStyle={{ color: '#f3f4f6' }}
           />
           <Legend wrapperStyle={{fontSize: "14px"}}/>

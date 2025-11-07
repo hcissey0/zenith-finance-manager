@@ -25,7 +25,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ transactions }) => 
       .map(([name, value]) => ({ name, value }))
       .sort((a,b) => b.value - a.value);
   }, [transactions]);
-  
+
   if (data.length === 0) {
       return <div className="flex items-center justify-center h-full text-gray-500">No expense data available.</div>
   }
@@ -49,8 +49,10 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ transactions }) => 
             ))}
           </Pie>
           <Tooltip
-            contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151' }}
+            contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px'  }}
+            itemStyle={{ color: "#fff" }}
             formatter={(value) => `$${Number(value).toFixed(2)}`}
+
           />
           <Legend layout="vertical" align="right" verticalAlign="middle" wrapperStyle={{fontSize: "12px", color: "#d1d5db"}}/>
         </PieChart>
