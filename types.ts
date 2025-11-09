@@ -26,4 +26,5 @@ export type QuickLogType =
   | "salary"
   | "bill"
   | "gift-in"
-  | "gift-out";
+  | "gift-out"
+  | "charity";

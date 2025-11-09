@@ -30,6 +30,10 @@ import {
   Receipt,
   AlertTriangle,
   Gift,
+  Chrome,
+  LogOut,
+  X,
+  Search,
 } from "lucide-react";
 
 interface IconProps {
@@ -51,12 +55,16 @@ const icons: { [key: string]: React.ElementType } = {
   empty: Inbox,
   trash: Trash2,
   send: Send,
+  chrome: Chrome,
+  x: X,
+  search: Search,
   // Account icons
   User,
   Briefcase,
   School,
   Landmark,
   wallet: Wallet,
+  Wallet,
   WalletCards,
   PiggyBank,
   CreditCard,
@@ -73,6 +81,7 @@ const icons: { [key: string]: React.ElementType } = {
   bill: Receipt,
   gift: Gift,
   alert: AlertTriangle,
+  logout: LogOut,
 };
 
 const Icon: React.FC<IconProps> = ({ name, className = "h-6 w-6" }) => {

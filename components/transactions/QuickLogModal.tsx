@@ -3,6 +3,7 @@ import { QuickLogType } from "../../types";
 import Modal from "../ui/Modal";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
+import { title } from "process";
 
 interface QuickLogModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ const config = {
   bill: { title: "Log Bill Payment", fields: ["for", "amount"] },
   "gift-in": { title: "Log Gift Received", fields: ["from", "amount"] },
   "gift-out": { title: "Log Gift Given", fields: ["to", "amount"] },
+  charity: { title: "Log Charity Donation", fields: ["to", "amount"] },
 };
 
 const QuickLogModal: React.FC<QuickLogModalProps> = ({

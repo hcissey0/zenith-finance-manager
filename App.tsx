@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useLocalStorage } from "./hooks/useLocalStorage";
+import { supabase } from "./lib/supabase";
+import Auth from "./components/auth/Auth";
+import {
+  useAccounts,
+  useTransactions,
+  useAccountTransactions,
+} from "./hooks/useDatabase";
 import {
   Transaction,
   Account,
@@ -27,18 +33,28 @@ import ConfirmationModal from "./components/ui/ConfirmationModal";
 const pages: Page[] = ["dashboard", "transactions", "accounts", "settings"];
 
 const App: React.FC = () => {
-  const [accounts, setAccounts] = useLocalStorage<Account[]>(
-    "accounts",
-    DEFAULT_ACCOUNTS
-  );
-  const [activeAccountId, setActiveAccountId] = useLocalStorage<string>(
-    "activeAccountId",
-    DEFAULT_ACCOUNTS[0].id
-  );
-  const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
-    "transactions",
-    []
-  );
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeAccountId, setActiveAccountId] = useState<string>("");
+
+  // Database hooks
+  const {
+    accounts,
+    loading: accountsLoading,
+    error: accountsError,
+    createAccount,
+    updateAccount,
+    deleteAccount,
+  } = useAccounts();
+
+  const {
+    transactions,
+    loading: transactionsLoading,
+    error: transactionsError,
+    createTransaction,
+    updateTransaction,
+    deleteTransaction,
+  } = useTransactions();
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [quickLogType, setQuickLogType] = useState<QuickLogType | null>(null);
@@ -72,6 +88,53 @@ const App: React.FC = () => {
     return () => {
       window.removeEventListener("beforeinstallprompt", handler);
     };
+  }, []);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log("Initial session:", session, "Error:", error);
+      console.log(
+        "localStorage auth token:",
+        localStorage.getItem("supabase.auth.token")
+      );
+      setSession(session);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state change:", event, "Session:", session);
+      setSession(session);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const handleAuthCallback = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Error getting session:", error);
+      }
+      if (data.session) {
+        console.log("Session restored from callback:", data.session);
+        setSession(data.session);
+      }
+    };
+
+    // Check if we're returning from OAuth
+    const hash = window.location.hash;
+    const search = window.location.search;
+
+    if (hash.includes("access_token") || search.includes("code")) {
+      console.log("Detected OAuth callback, processing...");
+      handleAuthCallback();
+    }
   }, []);
 
   const addToast = useCallback(
@@ -203,17 +266,30 @@ const App: React.FC = () => {
     };
   }, []);
 
+  const isLoading = loading || accountsLoading || transactionsLoading;
+  const hasError = accountsError || transactionsError;
+
   const activeAccount = useMemo(
-    () => accounts.find((p) => p.id === activeAccountId) || accounts[0],
+    () => accounts.find((acc) => acc.id === activeAccountId) || accounts[0],
     [accounts, activeAccountId]
   );
 
   useEffect(() => {
-    // If the active account is deleted, set the first account as active
-    if (!accounts.find((acc) => acc.id === activeAccountId)) {
-      setActiveAccountId(accounts[0]?.id || "");
+    // Set active account when accounts are loaded
+    if (accounts.length > 0 && !activeAccountId) {
+      setActiveAccountId(accounts[0].id);
     }
-  }, [accounts, activeAccountId, setActiveAccountId]);
+  }, [accounts, activeAccountId]);
+
+  useEffect(() => {
+    // If the active account is deleted, set the first account as active
+    if (
+      accounts.length > 0 &&
+      !accounts.find((acc) => acc.id === activeAccountId)
+    ) {
+      setActiveAccountId(accounts[0].id);
+    }
+  }, [accounts, activeAccountId]);
 
   const activeTransactions = useMemo(
     () =>
@@ -226,45 +302,54 @@ const App: React.FC = () => {
   );
 
   const addTransaction = useCallback(
-    (tx: Omit<Transaction, "id" | "accountId">) => {
-      const newTx: Transaction = {
-        ...tx,
-        id: uuidv4(),
-        accountId: activeAccountId,
-      };
-      setTransactions((prev) => [...prev, newTx]);
-      addToast("Transaction added successfully!");
+    async (tx: Omit<Transaction, "id" | "accountId">) => {
+      try {
+        await createTransaction({
+          ...tx,
+          accountId: activeAccountId,
+        });
+        addToast("Transaction added successfully!");
+      } catch (error) {
+        addToast("Failed to add transaction", "error");
+      }
     },
-    [activeAccountId, setTransactions, addToast]
+    [activeAccountId, createTransaction, addToast]
   );
 
-  const deleteTransaction = useCallback(
+  const handleDeleteTransaction = useCallback(
     (id: string) => {
       const txToDelete = transactions.find((tx) => tx.id === id);
       if (!txToDelete) return;
 
       requestConfirmation(
-        () => {
-          setTransactions((prev) => prev.filter((tx) => tx.id !== id));
-          addToast("Transaction deleted.", "error");
+        async () => {
+          try {
+            await deleteTransaction(id);
+            addToast("Transaction deleted.", "error");
+          } catch (error) {
+            addToast("Failed to delete transaction", "error");
+          }
         },
         "Delete Transaction",
         `Are you sure you want to delete this transaction: "${txToDelete.description}"? This action cannot be undone.`
       );
     },
-    [transactions, setTransactions, addToast]
+    [transactions, deleteTransaction, addToast]
   );
 
-  const addAccount = useCallback(
-    (accountData: Omit<Account, "id">) => {
-      const newAccount: Account = { ...accountData, id: uuidv4() };
-      setAccounts((prev) => [...prev, newAccount]);
-      addToast("Account created successfully!");
+  const addAccountHandler = useCallback(
+    async (accountData: Omit<Account, "id">) => {
+      try {
+        await createAccount(accountData);
+        addToast("Account created successfully!");
+      } catch (error) {
+        addToast("Failed to create account", "error");
+      }
     },
-    [setAccounts, addToast]
+    [createAccount, addToast]
   );
 
-  const deleteAccount = useCallback(
+  const handleDeleteAccount = useCallback(
     (id: string) => {
       if (accounts.length <= 1) {
         addToast("Cannot delete the last account.", "error");
@@ -274,21 +359,32 @@ const App: React.FC = () => {
       if (!accToDelete) return;
 
       requestConfirmation(
-        () => {
-          setAccounts((prev) => prev.filter((acc) => acc.id !== id));
-          setTransactions((prev) => prev.filter((tx) => tx.accountId !== id));
-          addToast("Account deleted.", "error");
+        async () => {
+          try {
+            await deleteAccount(id);
+            addToast("Account deleted.", "error");
+          } catch (error) {
+            addToast("Failed to delete account", "error");
+          }
         },
         "Delete Account",
         `Are you sure you want to delete the account "${accToDelete.name}"? All associated transactions will also be deleted. This action cannot be undone.`
       );
     },
-    [accounts, setAccounts, setTransactions, addToast]
+    [accounts, deleteAccount, addToast]
   );
 
   const handleSetAccount = (id: string) => {
     setActiveAccountId(id);
     handleNavigation("dashboard");
+  };
+
+  const handleAuthSuccess = () => {
+    // Auth component will handle navigation
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
   };
 
   const handleInstallPWA = async () => {
@@ -301,19 +397,28 @@ const App: React.FC = () => {
     setDeferredPrompt(null);
   };
 
-  const seedTestData = useCallback(() => {
+  const seedTestData = useCallback(async () => {
     if (!activeAccountId) {
       addToast("Please select an account first.", "error");
       return;
     }
-    const newTestData = TEST_TRANSACTIONS.map((tx) => ({
-      ...tx,
-      id: uuidv4(),
-      accountId: activeAccountId,
-    }));
-    setTransactions((prev) => [...prev, ...newTestData]);
-    addToast(`${TEST_TRANSACTIONS.length} test transactions added!`);
-  }, [activeAccountId, setTransactions, addToast]);
+
+    try {
+      // Add test transactions to the database
+      const testTransactions = TEST_TRANSACTIONS.map((tx) => ({
+        ...tx,
+        accountId: activeAccountId,
+      }));
+
+      for (const tx of testTransactions) {
+        await createTransaction(tx);
+      }
+
+      addToast(`${TEST_TRANSACTIONS.length} test transactions added!`);
+    } catch (error) {
+      addToast("Failed to add test data", "error");
+    }
+  }, [activeAccountId, createTransaction, addToast]);
 
   const handleQuickLogSubmit = useCallback(
     (data: any) => {
@@ -360,6 +465,11 @@ const App: React.FC = () => {
           category = "Gift";
           type = "expense";
           break;
+        case "charity":
+          description = `Charity Donation to ${data.to}`;
+          category = "Charity";
+          type = "expense";
+          break;
         default:
           return;
       }
@@ -382,8 +492,8 @@ const App: React.FC = () => {
         <AccountsPage
           accounts={accounts}
           activeAccountId={activeAccountId}
-          onAddAccount={addAccount}
-          onDeleteAccount={deleteAccount}
+          onAddAccount={addAccountHandler}
+          onDeleteAccount={handleDeleteAccount}
           onSetAccount={handleSetAccount}
         />
       );
@@ -394,7 +504,7 @@ const App: React.FC = () => {
           <TransactionList
             transactions={activeTransactions}
             currency={activeAccount.currency}
-            onDelete={deleteTransaction}
+            onDelete={handleDeleteTransaction}
           />
         );
       case "accounts":
@@ -402,8 +512,8 @@ const App: React.FC = () => {
           <AccountsPage
             accounts={accounts}
             activeAccountId={activeAccountId}
-            onAddAccount={addAccount}
-            onDeleteAccount={deleteAccount}
+            onAddAccount={addAccountHandler}
+            onDeleteAccount={handleDeleteAccount}
             onSetAccount={handleSetAccount}
           />
         );
@@ -413,6 +523,8 @@ const App: React.FC = () => {
             onInstallPWA={handleInstallPWA}
             installPromptAvailable={!!deferredPrompt}
             seedTestData={seedTestData}
+            onSignOut={handleSignOut}
+            user={session?.user}
           />
         );
       case "dashboard":
@@ -428,9 +540,32 @@ const App: React.FC = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading Zenith Finance...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <Auth onAuthSuccess={handleAuthSuccess} />;
+  }
+
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-gray-100 font-sans">
-      <Header activeAccount={activeAccount} />
+      <Header
+        activeAccount={activeAccount}
+        user={session?.user}
+        onSignOut={handleSignOut}
+      />
       <main
         className="flex-grow overflow-y-auto overflow-x-hidden pb-28"
         onTouchStart={handleTouchStart}
