@@ -16,30 +16,6 @@ export default defineConfig(({ mode }) => {
         registerType: "autoUpdate",
         workbox: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/cdn\.tailwindcss\.com\/.*/i,
-              handler: "CacheFirst",
-              options: {
-                cacheName: "tailwindcss-cache",
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-                },
-              },
-            },
-            {
-              urlPattern: /^https:\/\/unpkg\.com\/recharts\/.*/i,
-              handler: "CacheFirst",
-              options: {
-                cacheName: "recharts-cache",
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365,
-                },
-              },
-            },
-          ],
         },
       }),
     ],
