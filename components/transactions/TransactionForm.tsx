@@ -120,7 +120,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
           <button
             type="button"
             onClick={handleSuggestCategory}
-            className="absolute right-2 bottom-2 text-xs bg-primary/20 text-primary-light px-2 py-1 rounded-md hover:bg-primary/40 disabled:opacity-50"
+            className="absolute right-2 bottom-2 text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-md hover:bg-blue-500/40 disabled:opacity-50"
             disabled={isSuggesting || !description || !isOnline}
             title={
               !isOnline ? "AI suggestions require internet connection" : ""

@@ -149,7 +149,7 @@ const IncomeExpenseCalendar: React.FC<IncomeExpenseCalendarProps> = ({
           currentDate.getFullYear() !== new Date().getFullYear() ? (
             <button
               onClick={goToCurrentMonth}
-              className="text-xs text-primary hover:text-primary-light transition-colors"
+              className="text-xs text-blue-500 hover:text-blue-400 transition-colors"
             >
               Go to Today
             </button>
@@ -183,7 +183,7 @@ const IncomeExpenseCalendar: React.FC<IncomeExpenseCalendarProps> = ({
             key={index}
             className={`min-h-[50px] sm:min-h-[60px] p-1 border rounded relative ${
               day.isToday
-                ? "border-primary bg-primary/10"
+                ? "border-blue-500 bg-blue-500/10"
                 : day.isCurrentMonth
                 ? "border-gray-700 bg-gray-700"
                 : "border-gray-700 bg-gray-800"
@@ -191,7 +191,7 @@ const IncomeExpenseCalendar: React.FC<IncomeExpenseCalendarProps> = ({
           >
             <div
               className={`text-xs mb-1 font-semibold ${
-                day.isToday ? "text-primary" : "text-gray-300"
+                day.isToday ? "text-blue-500" : "text-gray-300"
               }`}
             >
               {day.date.getDate()}

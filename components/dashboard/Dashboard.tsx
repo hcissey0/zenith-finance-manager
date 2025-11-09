@@ -74,7 +74,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       onClick={() => setTimeRange(range)}
       className={`w-full px-4 py-2 text-sm font-medium rounded-lg transition ${
         timeRange === range
-          ? "bg-primary text-white"
+          ? "bg-blue-500 text-white"
           : "bg-gray-700 text-gray-300 hover:bg-gray-600"
       }`}
     >

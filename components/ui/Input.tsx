@@ -30,7 +30,7 @@ const Input: React.FC<InputProps> = ({
         <input
           id={inputId}
           autoComplete="off"
-          className={`block w-full bg-gray-700 border-gray-600 rounded-md py-2 pr-3 text-white placeholder-gray-400 focus:ring-primary focus:border-primary sm:text-sm ${
+          className={`block w-full bg-gray-700 border-gray-600 rounded-md py-2 pr-3 text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
             leadingSymbol ? "pl-12" : "pl-3"
           }`}
           {...props}

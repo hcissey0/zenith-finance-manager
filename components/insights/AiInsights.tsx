@@ -73,7 +73,7 @@ const AccountForm: React.FC<{
                 key={i}
                 onClick={() => setIcon(i)}
                 className={`p-2 rounded-lg ${
-                  icon === i ? `ring-2 ring-primary ${color}` : "bg-gray-700"
+                  icon === i ? `ring-2 ring-blue-500 ${color}` : "bg-gray-700"
                 }`}
               >
                 <Icon name={i} className="h-6 w-6 text-white" />
@@ -121,7 +121,7 @@ const AccountItem: React.FC<{
   <li
     className={`rounded-lg transition-all ${
       isActive
-        ? "bg-primary/20 ring-2 ring-primary"
+        ? "bg-blue-500/20 ring-2 ring-blue-500"
         : "bg-gray-800 hover:bg-gray-700"
     }`}
   >

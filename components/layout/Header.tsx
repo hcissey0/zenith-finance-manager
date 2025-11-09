@@ -34,7 +34,7 @@ const Header: React.FC<HeaderProps> = ({ activeAccount, user, onSignOut }) => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <Icon name="logo" className="h-8 w-8 text-primary" />
+            <Icon name="logo" className="h-8 w-8 text-blue-500" />
             <span className="ml-3 text-2xl font-bold text-white tracking-tight">
               Zenith
             </span>
@@ -64,11 +64,38 @@ const Header: React.FC<HeaderProps> = ({ activeAccount, user, onSignOut }) => {
             <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 px-2 py-2 rounded-full transition-colors duration-200"
+                className="flex items-center justify-center  bg-gray-800 hover:bg-gray-700 px-2 py-2 rounded-full transition-colors duration-200"
               >
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                {user?.user_metadata?.picture ||
+                user?.user_metadata?.avatar_url ? (
+                  <img
+                    src={
+                      user.user_metadata.picture ||
+                      user.user_metadata.avatar_url
+                    }
+                    alt="User avatar"
+                    className="w-8 h-8 rounded-full object-cover"
+                    onError={(e) => {
+                      // Fallback to initials if image fails to load
+                      e.currentTarget.style.display = "none";
+                      e.currentTarget.nextElementSibling.style.display = "flex";
+                    }}
+                  />
+                ) : null}
+                <div
+                  className={`w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm ${
+                    user?.user_metadata?.picture ||
+                    user?.user_metadata?.avatar_url
+                      ? "hidden"
+                      : ""
+                  }`}
+                >
                   {user
-                    ? getUserInitials(user.email, user.user_metadata?.full_name)
+                    ? getUserInitials(
+                        user.email,
+                        user.user_metadata?.full_name ||
+                          user.user_metadata?.name
+                      )
                     : "?"}
                 </div>
                 {/* <Icon
@@ -86,7 +113,8 @@ const Header: React.FC<HeaderProps> = ({ activeAccount, user, onSignOut }) => {
                       {user
                         ? getUserDisplayName(
                             user.email,
-                            user.user_metadata?.full_name
+                            user.user_metadata?.full_name ||
+                              user.user_metadata?.name
                           )
                         : "User"}
                     </p>

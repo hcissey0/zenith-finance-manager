@@ -18,7 +18,7 @@ const Select: React.FC<SelectProps> = ({ label, id, options, ...props }) => {
       <select
         id={selectId}
         autoComplete="off"
-        className="block w-full bg-gray-700 border-gray-600 rounded-md py-2 pl-3 pr-10 text-white focus:ring-primary focus:border-primary sm:text-sm"
+        className="block w-full bg-gray-700 border-gray-600 rounded-md py-2 pl-3 pr-10 text-white focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
         {...props}
       >
         {options.map((option) => (
