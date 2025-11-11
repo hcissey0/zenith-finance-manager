@@ -96,7 +96,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         )}
       </div>
 
-      <div className="bg-gray-800 rounded-lg p-6 border-2 border-dashed border-yellow-500/50">
+      {/* <div className="bg-gray-800 rounded-lg p-6 border-2 border-dashed border-yellow-500/50">
         <div className="flex items-center gap-3">
           <Icon name="dev" className="h-6 w-6 text-yellow-400" />
           <h3 className="text-lg font-semibold text-yellow-400">
@@ -111,7 +111,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         <Button onClick={seedTestData} variant="secondary">
           <span className="flex items-center gap-2">Add Test Data</span>
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };
