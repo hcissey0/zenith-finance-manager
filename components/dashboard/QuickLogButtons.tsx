@@ -54,7 +54,19 @@ const buttons: {
     label: "Charity",
     icon: "salary",
     color: "bg-teal-500 hover:bg-teal-600",
-  }
+  },
+  {
+    type: "momo-charges",
+    label: "Momo charges",
+    icon: "badgeCent",
+    color: "bg-yellow-500 hover:bg-yellow-600",
+  },
+  {
+    type: "misc",
+    label: "Misc",
+    icon: "shoppingBag",
+    color: "bg-indigo-500 hover:bg-indigo-600",
+  },
 ];
 
 const QuickLogButtons: React.FC<QuickLogButtonsProps> = ({

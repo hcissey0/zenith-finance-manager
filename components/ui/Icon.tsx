@@ -34,6 +34,8 @@ import {
   LogOut,
   X,
   Search,
+  BadgeCent,
+  ShoppingBag,
 } from "lucide-react";
 
 interface IconProps {
@@ -58,6 +60,8 @@ const icons: { [key: string]: React.ElementType } = {
   chrome: Chrome,
   x: X,
   search: Search,
+  badgeCent: BadgeCent,
+  shoppingBag: ShoppingBag,
   // Account icons
   User,
   Briefcase,

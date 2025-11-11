@@ -470,6 +470,16 @@ const App: React.FC = () => {
           category = "Charity";
           type = "expense";
           break;
+        case "momo-charges":
+          description = `Mobile Money Charges on ${data.on}`;
+          category = "Other";
+          type = "expense";
+          break;
+        case "misc":
+          description = `Misc: ${data.bought}`;
+          category = "Other";
+          type = "expense";
+          break;
         default:
           return;
       }
@@ -479,7 +489,7 @@ const App: React.FC = () => {
         amount,
         category,
         description,
-        date: new Date().toISOString().split("T")[0],
+        date: data.date || new Date().toISOString().split("T")[0],
       });
       setQuickLogType(null);
     },

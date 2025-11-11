@@ -13,14 +13,31 @@ interface QuickLogModalProps {
   currency: string;
 }
 
+const LOCATION_SUGGESTIONS = [
+  "Aboabo Station",
+  "Aboabo",
+  "Asabe",
+  "Sepe Junction",
+  "Post Office",
+  "PayHall",
+];
+
 const config = {
-  lorry: { title: "Log Lorry Fare", fields: ["from", "to", "amount"] },
-  food: { title: "Log Food Expense", fields: ["item", "amount"] },
-  salary: { title: "Log Salary", fields: ["source", "amount"] },
-  bill: { title: "Log Bill Payment", fields: ["for", "amount"] },
-  "gift-in": { title: "Log Gift Received", fields: ["from", "amount"] },
-  "gift-out": { title: "Log Gift Given", fields: ["to", "amount"] },
-  charity: { title: "Log Charity Donation", fields: ["to", "amount"] },
+  lorry: { title: "Log Lorry Fare", fields: ["from", "to", "amount", "date"] },
+  food: { title: "Log Food Expense", fields: ["item", "amount", "date"] },
+  salary: { title: "Log Salary", fields: ["source", "amount", "date"] },
+  bill: { title: "Log Bill Payment", fields: ["for", "amount", "date"] },
+  "gift-in": { title: "Log Gift Received", fields: ["from", "amount", "date"] },
+  "gift-out": { title: "Log Gift Given", fields: ["to", "amount", "date"] },
+  charity: { title: "Log Charity Donation", fields: ["to", "amount", "date"] },
+  "momo-charges": {
+    title: "Log Mobile Money Charges",
+    fields: ["on", "amount", "date"],
+  },
+  misc: {
+    title: "Log Miscellaneous Spending",
+    fields: ["bought", "amount", "date"],
+  },
 };
 
 const QuickLogModal: React.FC<QuickLogModalProps> = ({
@@ -36,7 +53,8 @@ const QuickLogModal: React.FC<QuickLogModalProps> = ({
   useEffect(() => {
     // Reset form when type changes or modal opens
     if (isOpen) {
-      setFormData({});
+      const today = new Date().toISOString().split("T")[0];
+      setFormData({ date: today });
     }
   }, [type, isOpen]);
 
@@ -51,11 +69,17 @@ const QuickLogModal: React.FC<QuickLogModalProps> = ({
 
   const renderField = (field: string) => {
     const isAmount = field === "amount";
-    const placeholder = isAmount ? "0.00" : `Enter ${field}...`;
-    const inputType = isAmount ? "number" : "text";
-    const label = field.charAt(0).toUpperCase() + field.slice(1);
+    const isDate = field === "date";
+    const isLocationField =
+      (field === "from" || field === "to") && type === "lorry";
+    const placeholder = isAmount ? "0.00" : isDate ? "" : `Enter ${field}...`;
+    const inputType = isAmount ? "number" : isDate ? "date" : "text";
+    const label =
+      field === "date"
+        ? "Date"
+        : field.charAt(0).toUpperCase() + field.slice(1);
 
-    return (
+    const inputField = (
       <Input
         key={field}
         label={label}
@@ -67,6 +91,28 @@ const QuickLogModal: React.FC<QuickLogModalProps> = ({
         {...(isAmount && { step: "0.01", leadingSymbol: currency })}
       />
     );
+
+    if (isLocationField) {
+      return (
+        <div key={field} className="space-y-2">
+          {inputField}
+          <div className="flex flex-wrap gap-2">
+            {LOCATION_SUGGESTIONS.map((location) => (
+              <button
+                key={location}
+                type="button"
+                onClick={() => handleChange(field, location)}
+                className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full transition-colors duration-200"
+              >
+                {location}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return inputField;
   };
 
   return (

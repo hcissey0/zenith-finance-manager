@@ -27,4 +27,6 @@ export type QuickLogType =
   | "bill"
   | "gift-in"
   | "gift-out"
-  | "charity";
+  | "charity"
+  | "momo-charges"
+  | "misc";

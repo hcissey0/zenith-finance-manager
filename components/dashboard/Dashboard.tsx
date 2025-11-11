@@ -23,7 +23,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   onQuickLog,
   onAddTransaction,
 }) => {
-  const [timeRange, setTimeRange] = useState<TimeRange>("month");
+  const [timeRange, setTimeRange] = useState<TimeRange>("today");
 
   const filteredTransactions = useMemo(() => {
     const now = new Date();
