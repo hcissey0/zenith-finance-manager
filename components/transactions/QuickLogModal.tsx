@@ -20,6 +20,8 @@ const LOCATION_SUGGESTIONS = [
   "Sepe Junction",
   "Post Office",
   "PayHall",
+  "Ahodwo",
+  "Adum",
 ];
 
 const config = {
